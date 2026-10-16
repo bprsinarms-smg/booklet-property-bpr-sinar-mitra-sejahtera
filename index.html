@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a2a">
+<title>BOOKLET PROPERTY | BPR SINAR MITRA SEJAHTERA</title>
+<style>
+:root{--ink:#102a2a;--gold:#c8a96a;--paper:#fbf8f1;--muted:#66716d}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#e8e4d8 0,#c9d0ca 55%,#aab6b0 100%);font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px clamp(16px,4vw,54px);color:#fff;background:var(--ink)}
+.brand{font-weight:800;letter-spacing:.16em;font-size:15px}.brand span{color:var(--gold)}.top small{color:#d4ddd8;letter-spacing:.12em;font-size:10px}
+.stage{padding:22px 14px 12px;display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 132px)}
+/* Rasio halaman F4 portrait: 21,5 x 33 cm */
+.book{width:min(78vw,520px,calc((100vh - 220px)*.6515));aspect-ratio:21.5/33;max-height:calc(100vh - 190px);position:relative;perspective:2200px;filter:drop-shadow(0 20px 24px #21302b40);isolation:isolate}
+.page-image{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;background:var(--paper);border:1px solid #e7e0d3;border-radius:3px 7px 7px 3px;display:block;user-select:none;-webkit-user-drag:none}
+/* Lembaran animasi: gambar depan dan belakang berputar pada poros kiri */
+.flip-sheet{position:absolute;inset:0;z-index:5;transform-style:preserve-3d;transform-origin:left center;transition:transform .82s cubic-bezier(.2,.7,.15,1);pointer-events:none}
+.flip-sheet .face{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--paper);border:1px solid #e7e0d3;border-radius:3px 7px 7px 3px}
+.flip-sheet .face img{width:100%;height:100%;object-fit:fill;display:block;user-select:none;-webkit-user-drag:none}
+.flip-sheet .back{transform:rotateY(180deg)}
+.flip-sheet.turn-next{transform:rotateY(-180deg)}
+.flip-sheet.turn-prev{transform:rotateY(0deg)}
+/* Link penawaran ditampilkan di bawah gambar halaman terakhir */
+.offer{position:absolute;left:5%;right:5%;bottom:4%;z-index:3;text-align:center;padding:10px 12px 12px;background:rgba(16,42,42,.96);border:1px solid var(--gold);border-radius:4px;color:#fff;box-shadow:0 5px 18px #0002}
+.offer strong{display:block;color:var(--gold);font-size:clamp(10px,1.5vw,14px);letter-spacing:.13em;margin-bottom:7px}
+.offer a{display:inline-block;background:var(--gold);color:#102a2a;text-decoration:none;font-weight:800;letter-spacing:.06em;font-size:clamp(9px,1.25vw,12px);padding:9px 15px;border-radius:2px}
+.offer a:hover{filter:brightness(1.08)}.offer-note{font-size:9px;color:#d4ddd8;margin-top:6px}
+.controls{display:flex;justify-content:center;align-items:center;gap:14px;padding:0 12px 15px}.btn{border:1px solid #a7b1aa;background:#ffffffd9;color:var(--ink);border-radius:30px;padding:11px 18px;font-weight:700;cursor:pointer}.btn:hover{background:#fff}.btn:disabled{opacity:.35;cursor:not-allowed}.counter{font-size:12px;color:#32463e;min-width:92px;text-align:center}.hint{text-align:center;font-size:11px;color:#40574d;padding:0 16px 18px}.footer{text-align:center;background:#102a2a;color:#c9d4cd;padding:12px;font-size:10px;letter-spacing:.08em}
+@media(max-width:650px){.top{padding:13px 15px}.top small{display:none}.stage{padding:16px 10px 12px;min-height:auto}.book{width:min(88vw,calc((100dvh - 205px)*.6515));max-height:calc(100dvh - 205px)}.controls{gap:7px;padding-bottom:12px}.btn{padding:10px 12px;font-size:12px}.counter{min-width:66px;font-size:11px}.hint{padding-bottom:14px}.offer{padding:8px 7px 9px;bottom:3%}.offer a{padding:8px 10px}}
+@media(max-height:600px) and (min-width:651px){.book{width:min(31vw,calc((100vh - 170px)*.6515));max-height:calc(100vh - 150px)}.stage{min-height:auto;padding:12px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand">BOOKLET <span>PROPERTY</span></div><small>BPR SINAR MITRA SEJAHTERA</small></header>
+<main class="stage"><div class="book" id="book" aria-label="Katalog properti interaktif, satu halaman portrait F4">
+  <img class="page-image" id="currentImage" src="images/page-01.jpg" alt="Halaman 1 katalog properti" draggable="false">
+  <div class="offer" id="offer" hidden>
+    <strong>INFO PEMINAT ASET</strong>
+    <a id="formLink" href="https://forms.google.com/" target="_blank" rel="noopener noreferrer">ISI FORM PENAWARAN ↗</a>
+    <div class="offer-note">Klik untuk mengisi formulir minat aset</div>
+  </div>
+</div></main>
+<div class="controls"><button class="btn" id="prev" aria-label="Halaman sebelumnya">← Sebelumnya</button><span class="counter" id="counter">Sampul · 1/6</span><button class="btn" id="next" aria-label="Halaman berikutnya">Berikutnya →</button></div>
+<div class="hint">Halaman berupa gambar JPG · Klik tombol, gunakan panah keyboard, atau usap layar untuk membalik halaman.</div>
+<footer class="footer">BOOKLET PROPERTY · KATALOG DIGITAL INTERAKTIF</footer>
+<script>
+/* PANDUAN GANTI HALAMAN:
+   Simpan JPG desain F4 portrait ke folder images dengan nama berurutan:
+   page-01.jpg, page-02.jpg, page-03.jpg, dan seterusnya.
+   Ubah jumlah halaman pada daftar PAGE_FILES di bawah.
+   Tempel tautan Google Form asli pada GOOGLE_FORM_URL.
+*/
+const PAGE_FILES = [
+  'page-01.jpg',
+  'page-02.jpg',
+  'page-03.jpg',
+  'page-04.jpg',
+  'page-05.jpg',
+  'page-06.jpg'
+];
+const GOOGLE_FORM_URL = 'https://forms.gle/iRU9CTixsDyEyQAk7'; // GANTI dengan link Google Form milik Anda
+const currentImage = document.getElementById('currentImage');
+const book = document.getElementById('book');
+const offer = document.getElementById('offer');
+const formLink = document.getElementById('formLink');
+const counter = document.getElementById('counter');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+let current = 0;
+let animating = false;
+formLink.href = GOOGLE_FORM_URL;
+
+function updateUI(){
+  currentImage.src = PAGE_FILES[current];
+  currentImage.alt = `Halaman ${current+1} katalog properti`;
+  counter.textContent = (current===0 ? 'Sampul' : `Halaman ${current+1}`) + ` · ${current+1}/${PAGE_FILES.length}`;
+  prev.disabled = current===0;
+  next.disabled = current===PAGE_FILES.length-1;
+  offer.hidden = current!==PAGE_FILES.length-1;
+}
+function go(direction){
+  if(animating) return;
+  const target = current + direction;
+  if(target<0 || target>=PAGE_FILES.length) return;
+  animating = true;
+  const oldIndex = current;
+  const sheet = document.createElement('div');
+  sheet.className = 'flip-sheet';
+  const front = document.createElement('div'); front.className='face front';
+  const frontImg = document.createElement('img'); frontImg.src=PAGE_FILES[oldIndex]; frontImg.alt=''; frontImg.draggable=false; front.appendChild(frontImg);
+  const back = document.createElement('div'); back.className='face back';
+  const backImg = document.createElement('img'); backImg.src=PAGE_FILES[target]; backImg.alt=''; backImg.draggable=false; back.appendChild(backImg);
+  sheet.append(front,back);
+  // Siapkan halaman tujuan di bawah lembar animasi.
+  current = target;
+  updateUI();
+  // Pastikan gambar depan/belakang sudah siap sebelum animasi dimulai.
+  const startFlip = () => {
+    if(direction>0){
+      sheet.classList.add('turn-next');
+    }else{
+      sheet.style.transform='rotateY(-180deg)';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>sheet.classList.add('turn-prev')));
+    }
+  };
+  book.appendChild(sheet);
+  if(direction<0){sheet.style.transform='rotateY(-180deg)';}
+  const imgs=[frontImg,backImg]; let ready=0;
+  const done=()=>{ready++;if(ready===imgs.length)requestAnimationFrame(startFlip)};
+  imgs.forEach(img=>{if(img.complete)done();else{img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true})}});
+  setTimeout(()=>{sheet.remove();animating=false;updateUI()},900);
+}
+prev.addEventListener('click',()=>go(-1));
+next.addEventListener('click',()=>go(1));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
+let startX=0;
+book.addEventListener('touchstart',e=>{startX=e.changedTouches[0].screenX},{passive:true});
+book.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-startX;if(Math.abs(dx)>40)go(dx<0?1:-1)},{passive:true});
+currentImage.addEventListener('error',()=>{currentImage.alt='Gambar belum tersedia: '+PAGE_FILES[current]+'. Masukkan file JPG dengan nama yang sesuai ke folder images.';currentImage.style.background='#fbf8f1';});
+updateUI();
+</script>
+</body>
+</html>
