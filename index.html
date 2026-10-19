@@ -35,33 +35,35 @@ body{margin:0;background:radial-gradient(ellipse at top,#e8e4d8 0,#c9d0ca 55%,#a
 </head>
 <body>
 <header class="top"><div class="brand">BOOKLET <span>PROPERTY</span></div><small>BPR SINAR MITRA SEJAHTERA</small></header>
-<main class="stage"><div class="book" id="book" aria-label="Katalog properti interaktif, satu halaman portrait F4">
-  <img class="page-image" id="currentImage" src="images/page-01.jpg" alt="Halaman 1 katalog properti" draggable="false">
-  <div class="offer" id="offer" hidden>
-    <strong>INFO PEMINAT ASET</strong>
-    <a id="formLink" href="https://forms.google.com/" target="_blank" rel="noopener noreferrer">ISI FORM PENAWARAN ↗</a>
-    <div class="offer-note">Klik untuk mengisi formulir minat aset</div>
+<main class="stage">
+  <div class="book" id="book" aria-label="Katalog properti interaktif, satu halaman portrait F4">
+    <img class="page-image" id="currentImage" src="./images/page-01.jpg" alt="Halaman 1 katalog properti" draggable="false">
+    <div class="offer" id="offer" hidden>
+      <strong>INFO PEMINAT ASET</strong>
+      <a id="formLink" href="https://forms.gle/iRU9CTixsDyEyQAk7" target="_blank" rel="noopener noreferrer">ISI FORM PENAWARAN ↗</a>
+      <div class="offer-note">Klik untuk mengisi formulir minat aset</div>
+    </div>
   </div>
-</div></main>
-<div class="controls"><button class="btn" id="prev" aria-label="Halaman sebelumnya">← Sebelumnya</button><span class="counter" id="counter">Sampul · 1/6</span><button class="btn" id="next" aria-label="Halaman berikutnya">Berikutnya →</button></div>
+</main>
+<div class="controls">
+  <button class="btn" id="prev" aria-label="Halaman sebelumnya">← Sebelumnya</button>
+  <span class="counter" id="counter">Sampul · 1/6</span>
+  <button class="btn" id="next" aria-label="Halaman berikutnya">Berikutnya →</button>
+</div>
 <div class="hint">Halaman berupa gambar JPG · Klik tombol, gunakan panah keyboard, atau usap layar untuk membalik halaman.</div>
 <footer class="footer">BOOKLET PROPERTY · KATALOG DIGITAL INTERAKTIF</footer>
+
 <script>
-/* PANDUAN GANTI HALAMAN:
-   Simpan JPG desain F4 portrait ke folder images dengan nama berurutan:
-   page-01.jpg, page-02.jpg, page-03.jpg, dan seterusnya.
-   Ubah jumlah halaman pada daftar PAGE_FILES di bawah.
-   Tempel tautan Google Form asli pada GOOGLE_FORM_URL.
-*/
 const PAGE_FILES = [
-  "images/page-01.jpg",
-  "images/page-02.jpg",
-  "images/page-03.jpg",
-  "images/page-04.jpg",
-  "images/page-05.jpg",
-  "images/page-06.jpg"
+  "./images/page-01.jpg",
+  "./images/page-02.jpg",
+  "./images/page-03.jpg",
+  "./images/page-04.jpg",
+  "./images/page-05.jpg",
+  "./images/page-06.jpg"
 ];
-const GOOGLE_FORM_URL = 'https://forms.gle/iRU9CTixsDyEyQAk7'; // GANTI dengan link Google Form milik Anda
+const GOOGLE_FORM_URL = 'https://forms.gle/iRU9CTixsDyEyQAk7';
+
 const currentImage = document.getElementById('currentImage');
 const book = document.getElementById('book');
 const offer = document.getElementById('offer');
@@ -69,64 +71,98 @@ const formLink = document.getElementById('formLink');
 const counter = document.getElementById('counter');
 const prev = document.getElementById('prev');
 const next = document.getElementById('next');
+
 let current = 0;
 let animating = false;
 formLink.href = GOOGLE_FORM_URL;
 
-function updateUI(){
+function updateUI() {
   currentImage.src = PAGE_FILES[current];
-  currentImage.alt = `Halaman ${current+1} katalog properti`;
-  counter.textContent = (current===0 ? 'Sampul' : `Halaman ${current+1}`) + ` · ${current+1}/${PAGE_FILES.length}`;
-  prev.disabled = current===0;
-  next.disabled = current===PAGE_FILES.length-1;
-  offer.hidden = current!==PAGE_FILES.length-1;
+  currentImage.alt = `Halaman ${current + 1} katalog properti`;
+  counter.textContent = (current === 0 ? 'Sampul' : `Halaman ${current + 1}`) + ` · ${current + 1}/${PAGE_FILES.length}`;
+  prev.disabled = current === 0;
+  next.disabled = current === PAGE_FILES.length - 1;
+  offer.hidden = current !== PAGE_FILES.length - 1;
 }
-function go(direction){
-  if(animating) return;
+
+function go(direction) {
+  if (animating) return;
   const target = current + direction;
-  if(target<0 || target>=PAGE_FILES.length) return;
+  if (target < 0 || target >= PAGE_FILES.length) return;
+
   animating = true;
   const oldIndex = current;
+
+  // Buat elemen sheet animasi
   const sheet = document.createElement('div');
   sheet.className = 'flip-sheet';
-  const front = document.createElement('div'); front.className='face front';
-  const frontImg = document.createElement('img'); frontImg.src=PAGE_FILES[oldIndex]; frontImg.alt=''; frontImg.draggable=false; front.appendChild(frontImg);
-  const back = document.createElement('div'); back.className='face back';
-  const backImg = document.createElement('img'); backImg.src=PAGE_FILES[target]; backImg.alt=''; backImg.draggable=false; back.appendChild(backImg);
-  sheet.append(front,back);
-  // Siapkan halaman tujuan di bawah lembar animasi.
-  current = target;
-  updateUI();
-  // Pastikan gambar depan/belakang sudah siap sebelum animasi dimulai.
-  const startFlip = () => {
-    if(direction>0){
-      sheet.classList.add('turn-next');
-    }else{
-      sheet.style.transform='rotateY(-180deg)';
-      requestAnimationFrame(()=>requestAnimationFrame(()=>sheet.classList.add('turn-prev')));
-    }
-  };
+
+  const front = document.createElement('div');
+  front.className = 'face front';
+  const frontImg = document.createElement('img');
+  frontImg.src = PAGE_FILES[oldIndex];
+  frontImg.draggable = false;
+  front.appendChild(frontImg);
+
+  const back = document.createElement('div');
+  back.className = 'face back';
+  const backImg = document.createElement('img');
+  backImg.src = PAGE_FILES[target];
+  backImg.draggable = false;
+  back.appendChild(backImg);
+
+  sheet.append(front, back);
   book.appendChild(sheet);
-  if(direction<0){sheet.style.transform='rotateY(-180deg)';}
-  const imgs=[frontImg,backImg]; let ready=0;
-  const done=()=>{ready++;if(ready===imgs.length)requestAnimationFrame(startFlip)};
-  imgs.forEach(img=>{if(img.complete)done();else{img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true})}});
-  setTimeout(()=>{sheet.remove();animating=false;updateUI()},900);
+
+  if (direction < 0) {
+    sheet.style.transform = 'rotateY(-180deg)';
+  }
+
+  // Jalankan pembalikan lembaran
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (direction > 0) {
+        sheet.classList.add('turn-next');
+      } else {
+        sheet.classList.add('turn-prev');
+      }
+    });
+  });
+
+  // Perbarui halaman utama tepat setelah durasi animasi selesai
+  setTimeout(() => {
+    current = target;
+    updateUI();
+    sheet.remove();
+    animating = false;
+  }, 820);
 }
-prev.addEventListener('click',()=>go(-1));
-next.addEventListener('click',()=>go(1));
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
-let startX=0;
-book.addEventListener('touchstart',e=>{startX=e.changedTouches[0].screenX},{passive:true});
-book.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-startX;if(Math.abs(dx)>40)go(dx<0?1:-1)},{passive:true});
-currentImage.addEventListener('error',()=>{currentImage.alt='Gambar belum tersedia: '+PAGE_FILES[current]+'. Masukkan file JPG dengan nama yang sesuai ke folder images.';currentImage.style.background='#fbf8f1';});
+
+prev.addEventListener('click', () => go(-1));
+next.addEventListener('click', () => go(1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(1);
+  if (e.key === 'ArrowLeft') go(-1);
+});
+
+let startX = 0;
+book.addEventListener('touchstart', e => { startX = e.changedTouches[0].screenX; }, { passive: true });
+book.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].screenX - startX;
+  if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+currentImage.addEventListener('error', () => {
+  currentImage.alt = 'Gambar belum tersedia: ' + PAGE_FILES[current] + '. Pastikan file terupload di folder images.';
+  currentImage.style.background = '#fbf8f1';
+});
+
 updateUI();
-  if ("serviceWorker" in navigator) {
+
+if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .catch(error => console.error(
-        "Service Worker gagal didaftarkan:", error
-      ));
+      .catch(error => console.error("Service Worker gagal didaftarkan:", error));
   });
 }
 </script>
