@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "booklet-property-v1";
+const CACHE_NAME = "booklet-property-v2";
 
 const APP_FILES = [
   "./",
@@ -15,55 +15,90 @@ const APP_FILES = [
   "./images/page-06.jpg"
 ];
 
-// Simpan file aplikasi
+// Instalasi: simpan file yang berhasil dimuat saja
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(APP_FILES)
-    )
+    caches.open(CACHE_NAME).then(async cache => {
+      await Promise.all(
+        APP_FILES.map(async path => {
+          const url = new URL(path, self.registration.scope);
+
+          try {
+            const response = await fetch(url, {
+              cache: "reload"
+            });
+
+            if (response.ok) {
+              await cache.put(url.href, response);
+            } else {
+              console.warn(
+                "File gagal dimuat:",
+                url.href,
+                response.status
+              );
+            }
+          } catch (error) {
+            console.warn("Gagal menyimpan cache:", url.href, error);
+          }
+        })
+      );
+    })
   );
 
   self.skipWaiting();
 });
 
-// Aktifkan service worker dan hapus cache versi lama
+// Aktivasi: hapus cache versi aplikasi yang lama
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key =>
+            key.startsWith("booklet-property-") &&
+            key !== CACHE_NAME
+          )
           .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-
-  self.clients.claim();
 });
 
-// Gunakan cache jika tersedia
+// Muat cache terlebih dahulu, lalu gunakan jaringan jika belum tersedia
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  const scope = new URL(self.registration.scope);
+
+  // Jangan mengintervensi situs lain atau URL di luar folder aplikasi
+  if (
+    url.origin !== scope.origin ||
+    !url.pathname.startsWith(scope.pathname)
+  ) {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
+    caches.open(CACHE_NAME).then(async cache => {
+      const cached = await cache.match(request);
+
       if (cached) return cached;
 
-      return fetch(event.request).then(response => {
-        if (
-          response &&
-          response.status === 200 &&
-          response.type === "basic"
-        ) {
-          const copy = response.clone();
+      try {
+        const response = await fetch(request);
 
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, copy);
-          });
+        if (response.ok && response.type === "basic") {
+          await cache.put(request, response.clone());
         }
 
         return response;
-      });
+      } catch (error) {
+        // Beri tahu browser jika file tidak tersedia
+        throw error;
+      }
     })
   );
 });
