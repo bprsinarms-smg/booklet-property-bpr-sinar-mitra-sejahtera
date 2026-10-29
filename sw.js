@@ -12,7 +12,13 @@ const APP_FILES = [
   "./images/page-03.jpg",
   "./images/page-04.jpg",
   "./images/page-05.jpg",
-  "./images/page-06.jpg"
+  "./images/page-06.jpg",
+  "./images/page-07.jpg",
+  "./images/page-08.jpg",
+  "./images/page-09.jpg",
+  "./images/page-10.jpg",
+  "./images/page-11.jpg",
+  "./images/page-12.jpg"
 ];
 
 // Instalasi: simpan file yang berhasil dimuat saja
